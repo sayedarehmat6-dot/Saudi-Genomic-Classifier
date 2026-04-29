@@ -5,10 +5,9 @@ import numpy as np
 import os
 import plotly.express as px
 import plotly.graph_objects as go
-import matplotlib.pyplot as plt
 
 # -----------------------------
-# 1. CONFIG
+# CONFIG
 # -----------------------------
 st.set_page_config(
     page_title="Saudi Genomic Classifier",
@@ -19,28 +18,42 @@ st.set_page_config(
 FEATURES = ["pos", "global_af", "impact", "pli", "loeuf"]
 
 # -----------------------------
-# 2. LOAD MODEL
+# DEBUG (REMOVE LATER IF YOU WANT)
+# -----------------------------
+st.sidebar.write("📁 Working Dir:", os.getcwd())
+st.sidebar.write("📂 Root Files:", os.listdir())
+
+if os.path.exists("data"):
+    st.sidebar.write("📂 Data:", os.listdir("data"))
+
+if os.path.exists("models"):
+    st.sidebar.write("📂 Models:", os.listdir("models"))
+
+# -----------------------------
+# LOAD MODEL
 # -----------------------------
 @st.cache_resource
 def load_model():
-    path = "pathogenicity_model.json"
-    if not os.path.exists(path):
+    model_path = os.path.join("models", "pathogenicity_model.json")
+    if not os.path.exists(model_path):
+        st.error(f"Model not found at: {model_path}")
         return None
     model = xgb.XGBClassifier()
-    model.load_model(path)
+    model.load_model(model_path)
     return model
 
 model = load_model()
 
 # -----------------------------
-# 3. LOAD DATASET
+# LOAD DATASET
 # -----------------------------
 @st.cache_data
 def load_data():
-    path = "Saudi_Variant_AI_Master_Dataset.csv"
-    if not os.path.exists(path):
+    data_path = os.path.join("data", "Saudi_Variant_AI_Master_Dataset.csv")
+    if not os.path.exists(data_path):
+        st.error(f"Dataset not found at: {data_path}")
         return None
-    return pd.read_csv(path)
+    return pd.read_csv(data_path)
 
 df = load_data()
 
@@ -64,7 +77,7 @@ with st.sidebar:
 **Project:**  
 Population-Aware Variant Pathogenicity Prediction (Saudi Focus)
 
-**Model:** XGBoost (200 Trees)
+**Model:** XGBoost (~200 Trees)
 
 **Core Features:**
 - Allele Frequency
@@ -104,7 +117,7 @@ tab1, tab2, tab3 = st.tabs([
 ])
 
 # =========================================================
-# 🔬 TAB 1: VARIANT ANALYSIS
+# 🔬 VARIANT ANALYSIS
 # =========================================================
 with tab1:
 
@@ -117,7 +130,13 @@ with tab1:
         impact = st.selectbox("Impact", ["HIGH", "MODERATE", "LOW", "MODIFIER"])
 
     with col2:
-        global_af = st.number_input("Global AF", format="%.6f", value=0.0001)
+        global_af = st.number_input(
+            "Global AF",
+            min_value=0.0,
+            max_value=1.0,
+            format="%.6f",
+            value=0.0001
+        )
         pli = st.slider("pLI", 0.0, 1.0, 0.5)
 
     with col3:
@@ -129,7 +148,7 @@ with tab1:
     if st.button("Run Analysis", use_container_width=True):
 
         if model is None:
-            st.error("Model not found.")
+            st.error("Model not loaded.")
         else:
             input_df = pd.DataFrame([{
                 "pos": pos,
@@ -155,7 +174,7 @@ with tab1:
                 st.subheader("Interpretation")
 
                 if global_af < 0.001:
-                    st.write("• Rare variant → increases pathogenic likelihood")
+                    st.write("• Rare variant → higher pathogenic likelihood")
 
                 if pli > 0.9:
                     st.write("• High gene constraint (pLI)")
@@ -169,7 +188,6 @@ with tab1:
                     y=['Benign', 'Pathogenic'],
                     orientation='h'
                 ))
-
                 fig.update_layout(title="Prediction Confidence")
                 st.plotly_chart(fig, use_container_width=True)
 
@@ -177,12 +195,12 @@ with tab1:
             st.dataframe(input_df)
 
 # =========================================================
-# 📊 TAB 2: DATASET EXPLORER
+# 📊 DATASET EXPLORER
 # =========================================================
 with tab2:
 
     if df is None:
-        st.warning("Dataset not found.")
+        st.warning("Dataset not loaded.")
     else:
         st.subheader("Dataset Preview")
         st.dataframe(df.head(100))
@@ -199,13 +217,12 @@ with tab2:
                 x="global_af",
                 y="pli",
                 color=label_col if label_col else None,
-                title="AF vs pLI"
+                title="Allele Frequency vs Gene Constraint"
             )
-
             st.plotly_chart(fig, use_container_width=True)
 
 # =========================================================
-# 🧠 TAB 3: MODEL INSIGHTS
+# 🧠 MODEL INSIGHTS
 # =========================================================
 with tab3:
 
@@ -221,20 +238,43 @@ with tab3:
     if model is not None:
         st.subheader("Feature Importance")
 
-        fig, ax = plt.subplots()
-        xgb.plot_importance(model, ax=ax)
-        st.pyplot(fig)
+        booster = model.get_booster()
+        importance = booster.get_score(importance_type='weight')
+
+        if importance:
+            imp_df = pd.DataFrame({
+                "Feature": list(importance.keys()),
+                "Importance": list(importance.values())
+            }).sort_values(by="Importance", ascending=True)
+
+            fig = px.bar(
+                imp_df,
+                x="Importance",
+                y="Feature",
+                orientation='h',
+                title="Model Feature Importance"
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
+
+    st.subheader("SHAP Interpretability")
+
+    if os.path.exists("images/shap_summary_bar.png"):
+        st.image("images/shap_summary_bar.png")
+
+    if os.path.exists("images/shap_beeswarm.png"):
+        st.image("images/shap_beeswarm.png")
 
     st.subheader("Training Insight")
 
     st.write("""
-The model leverages biologically meaningful features:
+The model uses biologically meaningful features:
 
 - Allele frequency → rarity signal  
 - pLI → gene intolerance  
 - LOEUF → functional constraint  
 
-These features capture evolutionary pressure and help distinguish pathogenic variants.
+These reflect evolutionary pressure and help distinguish pathogenic variants.
     """)
 
 # -----------------------------
