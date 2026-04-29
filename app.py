@@ -3,90 +3,116 @@ import xgboost as xgb
 import pandas as pd
 import numpy as np
 import os
+import plotly.graph_objects as go
 
 # 1. Page Configuration
 st.set_page_config(
-    page_title="SGC: Saudi Genomic Classifier",
+    page_title="SGC | Saudi Genomic Classifier",
     page_icon="🧬",
-    layout="centered"
+    layout="wide" # Wide mode for a better dashboard feel
 )
 
 # 2. Professional Model Loader
 @st.cache_resource 
 def load_xgb_model():
-    # Define the path to your model file
     model_path = os.path.join("models", "pathogenicity_model.json")
-    
     if not os.path.exists(model_path):
-        st.error(f"Model file not found at {model_path}. Please check your folder structure!")
         return None
-        
     model = xgb.XGBClassifier()
     model.load_model(model_path)
     return model
 
 model = load_xgb_model()
 
-# 3. Sidebar - Academic Context
+# 3. Sidebar - Personal Branding & Info
 with st.sidebar:
-    st.image("https://upload.wikimedia.org/wikipedia/en/4/47/KAUST_logo.png", width=150)
-    st.title("About SGC")
-    st.info("""
-    **Developer:** [Your Name]
-    **Lab Alignment:** Professor Xin Gao (KAUST)
-    **Dataset:** PAVS + gnomAD
-    **Scope:** Pilot study on Chromosome 21
+    st.title("🧬 SGC v1.0")
+    st.markdown(f"""
+    **Developer:** Sayeda Rehmat
+    
+    **Project Overview:**
+    The Saudi Genomic Classifier (SGC) is a specialized AI tool designed to predict the pathogenicity of genetic variants within the Saudi Arabian population.
+    
+    **Technical Stack:**
+    * **Data:** Integrated PAVS + gnomAD
+    * **Model:** Optimized XGBoost
+    * **Focus:** Chromosome 21 (Pilot)
     """)
     st.divider()
-    st.write("This tool uses **Explainable AI (XAI)** to assist in clinical variant prioritization.")
+    st.caption("Decision Support Tool for Genomic Research")
 
-# 4. Main UI
-st.title("🇸🇦 Saudi Genomic Classifier")
+# 4. Main UI Header
+st.title("🇸🇦 Saudi Genomic Classifier Dashboard")
 st.markdown("---")
 
-col1, col2 = st.columns([1, 1])
-
-with col1:
-    st.subheader("Variant Input")
-    pos = st.number_input("Genomic Position (BP)", value=10000000, help="Coordinate on Chromosome 21")
-    global_af = st.number_input("Global Allele Frequency", format="%.6f", value=0.0001, help="Frequency from gnomAD")
-    impact = st.selectbox("VEP Functional Impact", ["HIGH", "MODERATE", "LOW", "MODIFIER"])
+# 5. Input Section
+st.subheader("📥 Variant Parameters")
+with st.container():
+    col1, col2, col3 = st.columns(3)
     
-    # Mapping impact to the integer scale used in XGBoost training
-    impact_map = {'HIGH': 3, 'MODERATE': 2, 'LOW': 1, 'MODIFIER': 0}
-    impact_val = impact_map[impact]
-
-with col2:
-    st.subheader("Constraint Scores")
-    pli = st.slider("pLI Score", 0.0, 1.0, 0.5, help="Probability of intolerance to Loss-of-Function")
-    loeuf = st.slider("LOEUF Score", 0.0, 2.0, 0.5, help="Lower scores indicate stronger selection against mutation")
-
-st.divider()
-
-# 5. Prediction Logic
-if st.button("🚀 Run Pathogenicity Analysis", use_container_width=True):
-    if model is not None:
-        # Features must be in order: [pos, global_af, impact_score, gnomad_pli, gnomad_loeuf]
-        input_data = np.array([[pos, global_af, impact_val, pli, loeuf]])
+    with col1:
+        pos = st.number_input("Genomic Position (BP)", value=10000000)
+        impact = st.selectbox("VEP Functional Impact", ["HIGH", "MODERATE", "LOW", "MODIFIER"])
+    
+    with col2:
+        global_af = st.number_input("Global Allele Frequency", format="%.6f", value=0.0001)
+        pli = st.slider("pLI Score", 0.0, 1.0, 0.5)
         
+    with col3:
+        loeuf = st.slider("LOEUF Score", 0.0, 2.0, 0.5)
+
+# Mapping impact
+impact_map = {'HIGH': 3, 'MODERATE': 2, 'LOW': 1, 'MODIFIER': 0}
+impact_val = impact_map[impact]
+
+st.markdown("---")
+
+# 6. Prediction & Dashboard Logic
+if st.button("🚀 Execute Diagnostic Analysis", use_container_width=True):
+    if model is not None:
+        input_data = np.array([[pos, global_af, impact_val, pli, loeuf]])
         prediction = model.predict(input_data)[0]
         probability = model.predict_proba(input_data)[0]
 
-        # 6. Professional Result Display
-        st.subheader("Classification Result")
-        
-        if prediction == 1:
-            st.error(f"### Result: **Likely PATHOGENIC**")
-            st.metric("AI Confidence Score", f"{probability[1]*100:.2f}%")
-            st.warning("Clinical Correlation Required: High probability of deleterious functional impact.")
-        else:
-            st.success(f"### Result: **Likely BENIGN / VUS**")
-            st.metric("AI Confidence Score", f"{probability[0]*100:.2f}%")
-            st.info("The variant does not meet the pathogenicity threshold based on current training data.")
+        # Results Dashboard
+        st.subheader("📊 Analysis Results")
+        res_col1, res_col2 = st.columns([1, 2])
+
+        with res_col1:
+            if prediction == 1:
+                st.error("### CLASS: PATHOGENIC")
+                st.metric("Confidence", f"{probability[1]*100:.2f}%")
+            else:
+                st.success("### CLASS: BENIGN / VUS")
+                st.metric("Confidence", f"{probability[0]*100:.2f}%")
+            
+            st.write("**Summary:** The model analyzed the interaction between allelic rarity and gene constraint to determine clinical significance.")
+
+        with res_col2:
+            # Professional Bar Chart for Probabilities
+            fig = go.Figure(go.Bar(
+                x=[probability[0], probability[1]],
+                y=['Benign', 'Pathogenic'],
+                orientation='h',
+                marker_color=['#2ecc71', '#e74c3c']
+            ))
+            fig.update_layout(
+                title="Prediction Probability Distribution",
+                xaxis_title="Confidence Level",
+                height=300,
+                margin=dict(l=20, r=20, t=40, b=20)
+            )
+            st.plotly_chart(fig, use_container_width=True)
             
     else:
-        st.error("Model failed to load. Ensure 'pathogenicity_model.json' is inside the 'models' folder.")
+        st.error("Configuration Error: Model file missing in /models directory.")
 
-# 7. Footer
+# 7. Professional Footer
 st.markdown("---")
-st.caption("© 2024 Saudi Genomic Classifier Pilot | Research Submission for KAUST Bioinformatics")
+st.markdown(
+    "<div style='text-align: center; color: gray;'>"
+    "Saudi Genomic Classifier | Developed by Sayeda Rehmat | Precision Medicine Initiative"
+    "</div>", 
+    unsafe_allow_stdio=True, 
+    unsafe_allow_html=True
+)
