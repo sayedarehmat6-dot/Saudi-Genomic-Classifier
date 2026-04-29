@@ -1,5 +1,6 @@
 # Saudi-Genomic-Classifier (SGC)
 Bridging the Diversity Gap in Pathogenicity Prediction via Interpretable AI
+
 🧬 Project Abstract
 Existing genomic pathogenicity predictors are trained on a dataset that reflects the western representation, resulting in the formation of a "representation gap" that negatively affects their performance in the diagnosis of Saudi individuals. To solve this problem, Saudi Genomic Classifier (SGC) was designed as an addition to the existing genomic tools that incorporates Saudi Clinical Database and gnomAD/ClinVar features. Through the implementation of cost-sensitive XGBoost trained with the SMOTE technique, SGC delivers a classification layer for uniquely Saudi genomic variants.
 
