@@ -3,7 +3,7 @@ Bridging the Diversity Gap in Pathogenicity Prediction via Interpretable AI
 
 🧬 Project Abstract
 
-Existing genomic pathogenicity predictors are trained on a dataset that reflects the western representation, resulting in the formation of a "representation gap" that negatively affects their performance in the diagnosis of Saudi individuals. To solve this problem, Saudi Genomic Classifier (SGC) was designed as an addition to the existing genomic tools that incorporates Saudi Clinical Database and gnomAD/ClinVar features. Through the implementation of cost-sensitive XGBoost trained with the SMOTE technique, SGC delivers a classification layer for uniquely Saudi genomic variants.
+Existing genomic pathogenicity predictors are trained on a dataset that reflects the western representation, resulting in the formation of a "representation gap" that negatively affects their performance in the diagnosis of Saudi individuals. To solve this problem, Saudi Genomic Classifier (SGC) addresses this by integrating the PAVS (Saudi Clinical Database) with global constraint metrics from gnomAD and ClinVar. This pilot study focuses on Chromosome 21 to demonstrate the feasibility of population-specific pathogenicity prediction.Through the implementation of cost-sensitive XGBoost trained with the SMOTE technique, SGC delivers a classification layer for uniquely Saudi genomic variants.
 
 🔬 Methodological 
 
@@ -18,7 +18,7 @@ Mitigation of class imbalance problem: Genomic data is typically imbalanced due 
 
 Feature engineering (biological): Gene-level intolerance measures (pLI and LOEUF), capture evolutionary constraints necessary to distinguish between VUS and genuine pathogens.
 
-This pilot study focuses on Chromosome 21 as a controlled genomic environment to validate the predictive power of the integrated PAVS-gnomAD feature set.
+Genomic Scope:Focused on Chromosome 21 as a high-density pilot environment. This allowed for rapid architectural iteration and validation of the integrated PAVS-gnomAD feature set before future scaling to the whole exome.
 
 Model Explainability (XAI)
 
