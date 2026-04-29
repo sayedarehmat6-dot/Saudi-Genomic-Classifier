@@ -18,6 +18,8 @@ Mitigation of class imbalance problem: Genomic data is typically imbalanced due 
 
 Feature engineering (biological): Gene-level intolerance measures (pLI and LOEUF), capture evolutionary constraints necessary to distinguish between VUS and genuine pathogens.
 
+This pilot study focuses on Chromosome 21 as a controlled genomic environment to validate the predictive power of the integrated PAVS-gnomAD feature set.
+
 Model Explainability (XAI)
 
 Clinical genetics cannot function with a 'Black Box' method; therefore, SHAP (SHapley Additive Explanations) is used to guarantee biological plausibility of model predictions:
