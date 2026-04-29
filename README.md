@@ -31,7 +31,9 @@ The primary predictor of this model is gnomAD pLI. This finding is consistent wi
 2. Local Feature Impact (Beeswarm Logic):
 
  The beeswarm chart also demonstrates the high-fidelity nature of this learning procedure:
+ 
  Increasing impact_score  correctly pulls the prediction towards pathogenic (Red dots right of the center).
+
  It effectively captures the cooperative impact of low global frequencies (global_af) and high gene intolerances.
 
 
@@ -39,12 +41,18 @@ Repository Structure
 
 
  data/
+ 
  SaudiVariantAIMasterDataset.csv # Pre-processed Master Feature Matrix
  models/
+ 
  pathogenicity_model.json # Serialized XGBoost Classifier
+ 
  images/
+ 
  shapsummarybar.png # Global importance ranking
+ 
  shap_beeswarm.png # Feature-level logic distribution
+ 
  SaudiGenomicClassifier.ipynb # Full Computational Pipeline
 
 
@@ -53,10 +61,15 @@ Repository Structure
  The serialized model is provided in JSON format to ensure broadest compatibility with clinical workstations.
 
 
+
 Python
+
 import xgboost as xgb
+
 model = xgb.XGBClassifier()
+
 model.loadmodel("models/pathogenicitymodel.json")
+
 Input: [pos, globalaf, impactscore, gnomadpli, gnomadloeuf]
 
 
