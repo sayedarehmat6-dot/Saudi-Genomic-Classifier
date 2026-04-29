@@ -42,11 +42,11 @@ with st.sidebar:
     st.caption("Decision Support Tool for Genomic Research")
 
 # 4. Main UI Header
-st.title("🇸🇦 Saudi Genomic Classifier Dashboard")
+st.title(" Saudi Genomic Classifier Dashboard")
 st.markdown("---")
 
 # 5. Input Section
-st.subheader("📥 Variant Parameters")
+st.subheader(" Variant Parameters")
 with st.container():
     col1, col2, col3 = st.columns(3)
     
@@ -68,7 +68,7 @@ impact_val = impact_map[impact]
 st.markdown("---")
 
 # 6. Prediction & Dashboard Logic
-if st.button("🚀 Execute Diagnostic Analysis", use_container_width=True):
+if st.button(" Execute Diagnostic Analysis", use_container_width=True):
     if model is not None:
         input_data = np.array([[pos, global_af, impact_val, pli, loeuf]])
         prediction = model.predict(input_data)[0]
@@ -107,12 +107,11 @@ if st.button("🚀 Execute Diagnostic Analysis", use_container_width=True):
     else:
         st.error("Configuration Error: Model file missing in /models directory.")
 
-# 7. Professional Footer
+ # 7. Professional Footer (Fixed)
 st.markdown("---")
 st.markdown(
     "<div style='text-align: center; color: gray;'>"
     "Saudi Genomic Classifier | Developed by Sayeda Rehmat | Precision Medicine Initiative"
     "</div>", 
-    unsafe_allow_stdio=True, 
-    unsafe_allow_html=True
+    unsafe_allow_html=True # Removed the '_stdio' error
 )
