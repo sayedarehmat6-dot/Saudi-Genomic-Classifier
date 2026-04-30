@@ -85,7 +85,7 @@ This design:
 * validates the integration of Saudi plus global data
 * offers a foundation for future genome-wide scaling
 
-⚠️ This model is **not genome-wide**.
+ This model is **not genome-wide**.
 
 ---
 
@@ -107,7 +107,8 @@ To ensure clarity, **SHAP (SHapley Additive Explanations)** was used.
 
 ## Streamlit Application
 https://saudi-genomic-classifier-eprkvza6vp5jnom9zenzzb.streamlit.app/
-An interactive dashboard is included (`app.py`) with:
+
+An interactive dashboard is included  with:
 
 * Variant-level prediction
 * Dataset exploration
@@ -133,21 +134,7 @@ app.py                           # Streamlit interface
 requirements.txt
 ```
 
----
 
-## Usage
-
-```python
-import xgboost as xgb
-
-model = xgb.XGBClassifier()
-model.load_model("models/pathogenicity_model.json")
-
-# Feature order:
-# [pos, global_af, impact, pli, loeuf]
-```
-
----
 
  
 This is a **research prototype,** not a clinical diagnostic tool.
