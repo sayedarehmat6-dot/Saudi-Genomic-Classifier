@@ -132,4 +132,27 @@ images/
 Saudi_Genomic_Classifier.ipynb   # Full pipeline
 app.py                           # Streamlit interface
 requirements.txt
-```## This is a **research prototype,** not a clinical diagnostic tool.---## Future Work* Expand to genome-wide prediction.* Add more features (CADD, REVEL, conservation scores).* Validate with independent datasets.* Enhance population-specific calibration.---## ConclusionThis project shows the feasibility of combining **population-specific genomic data** with **interpretable machine learning** for pathogenicity prediction.It establishes a basis for reducing **representation bias** in genomic diagnostics and supports broader aims of **precision medicine initiatives**.---## Author**Sayeda Rehmat**  Bioinformatics Research Project---## NoteThe complete data processing, feature engineering, and model training pipeline is documented in the accompanying Jupyter Notebook `Saudi_Genomic_Classifier.ipynb`
+This is a research prototype, not a clinical diagnostic tool.
+
+ Future Work
+Extend to genome-wide prediction
+Incorporate additional features (CADD, REVEL, conservation scores)
+Validate on independent datasets
+Improve population-specific calibration
+
+ Conclusion
+
+This project demonstrates the feasibility of combining population-specific genomic data with interpretable machine learning for pathogenicity prediction.
+
+It provides a foundation for reducing representation bias in genomic diagnostics and supports the broader goals of precision medicine initiatives.
+
+ Author
+
+Sayeda Rehmat
+Bioinformatics Research Project
+
+ Note
+
+The full data processing, feature engineering, and model training pipeline is implemented in the accompanying Jupyter Notebook:
+
+Saudi_Genomic_Classifier.ipynb
