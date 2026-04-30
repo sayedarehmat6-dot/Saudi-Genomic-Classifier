@@ -84,8 +84,8 @@ with st.sidebar:
     st.markdown("""
 **Population-Aware Variant Predictor**
 
-**Data Sources:** gnomAD • ClinVar • Saudi PAVS 
-""")
+**Data Sources:** gnomAD • ClinVar • Saudi PAVS *
+
 **Scope:** Chr21 Pilot *(not genome-wide)*
 
 **Model:** XGBoost (~200 trees)
