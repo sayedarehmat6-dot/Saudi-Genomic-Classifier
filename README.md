@@ -1,78 +1,185 @@
-# Saudi-Genomic-Classifier (SGC)
-Bridging the Diversity Gap in Pathogenicity Prediction via Interpretable AI
+# Saudi Genomic Classifier (SGC)
 
-🧬 Project Abstract
+**Population-Aware Pathogenicity Prediction using Interpretable AI (Chr21 Pilot Study)**
 
-Existing genomic pathogenicity predictors are trained on a dataset that reflects the western representation, resulting in the formation of a "representation gap" that negatively affects their performance in the diagnosis of Saudi individuals. To solve this problem, Saudi Genomic Classifier (SGC) addresses this by integrating the PAVS (Saudi Clinical Database) with global constraint metrics from gnomAD and ClinVar. This pilot study focuses on Chromosome 21 to demonstrate the feasibility of population-specific pathogenicity prediction.Through the implementation of cost-sensitive XGBoost trained with the SMOTE technique, SGC delivers a classification layer for uniquely Saudi genomic variants.
+---
 
-🔬 Methodological 
+## Overview
 
-In order to deliver high-quality output in line with computational biology standards, I employed the following methodology:
+The **Saudi Genomic Classifier (SGC)** is a machine learning-based framework that explores **population-aware variant pathogenicity prediction**.
 
+Most existing predictors are based on datasets that mainly include Western populations. This leads to a **representation bias** and can lower the reliability of diagnoses in underrepresented populations, such as those in Saudi Arabia.
 
-Data harmonization: Consolidation of multiple heterogeneous databases (PAVS, ClinVar, gnomAD) into a single master feature matrix comprising over 3,000 genomic variants.
+This project fills that gap by combining **Saudi-specific genomic data** with global resources and using **interpretable machine learning**.
 
+---
 
-Mitigation of class imbalance problem: Genomic data is typically imbalanced due to the nature of pathogenicity. In order to address the issue, I implemented the SMOTE (Synthetic Minority Over-sampling Technique) and adjusted the scale_pos_weight hyperparameter in XGBoost in order to improve the model's ability to recall rare deleterious alleles.
+## Objective
 
+* Develop a **pathogenicity prediction model** using biologically meaningful features.
+* Integrate **local (Saudi) and global genomic datasets**.
+* Show the feasibility of **population-aware prediction**.
+* Create an **interactive tool** for variant analysis.
 
-Feature engineering (biological): Gene-level intolerance measures (pLI and LOEUF), capture evolutionary constraints necessary to distinguish between VUS and genuine pathogens.
+---
 
-Genomic Scope:Focused on Chromosome 21 as a high-density pilot environment. This allowed for rapid architectural iteration and validation of the integrated PAVS-gnomAD feature set before future scaling to the whole exome.
+## Data Sources
 
-Model Explainability (XAI)
+This project brings together several genomic resources:
 
-Clinical genetics cannot function with a 'Black Box' method; therefore, SHAP (SHapley Additive Explanations) is used to guarantee biological plausibility of model predictions:
+* **PAVS** – Saudi clinical variant dataset
+* **ClinVar** – variant pathogenicity annotations
+* **gnomAD** – population allele frequency and constraint metrics
 
+These datasets were combined into a unified feature matrix.
 
-1. Global Feature Importance:
+---
 
-The primary predictor of this model is gnomAD pLI. This finding is consistent with our understanding of the genes and the necessity of high intolerance to the consequences of loss-of-function for the detection of a pathogenic phenotype.
+## Methodology
 
+### 1. Data Integration
 
-2. Local Feature Impact (Beeswarm Logic):
+Different datasets were merged into a **single master dataset (~3,000 variants)**.
 
- The beeswarm chart also demonstrates the high-fidelity nature of this learning procedure:
+---
+
+### 2. Feature Engineering
+
+The model uses biologically relevant features:
+
+* `global_af` → allele frequency (rarity signal)
+* `impact` → functional consequence (VEP-derived)
+* `pli` → gene-level intolerance
+* `loeuf` → loss-of-function constraint
+* `pos` → genomic position (contextual feature)
+
+---
+
+### 3. Class Imbalance Handling
+
+Genomic datasets often show high imbalance.
+
+To address this:
+
+* **SMOTE** was used to oversample the minority class.
+* **scale_pos_weight** was adjusted in XGBoost.
+
+---
+
+### 4. Model
+
+* **Algorithm:** XGBoost Classifier
+* **Task:** Binary classification (Pathogenic vs Benign/VUS)
+* **Features:** 5
+* **Training Scope:** Chromosome 21
+
+---
+
+## Genomic Scope
+
+This project is a **Chromosome 21 pilot study**.
+
+This design:
+
+* facilitates controlled experimentation
+* validates the integration of Saudi plus global data
+* offers a foundation for future genome-wide scaling
+
+⚠️ This model is **not genome-wide**.
+
+---
+
+## Model Explainability (XAI)
+
+To ensure clarity, **SHAP (SHapley Additive Explanations)** was used.
+
+### Global Insights
+
+* **pLI is a dominant predictor.**
+* Genes with high constraint are more likely to be pathogenic.
+
+### Local Behavior
+
+* High impact variants skew predictions toward pathogenic.
+* Rare variants along with high constraint increase the chance of being pathogenic.
+
+---
+
+## Streamlit Application
+https://saudi-genomic-classifier-eprkvza6vp5jnom9zenzzb.streamlit.app/
+An interactive dashboard is included (`app.py`) with:
+
+* Variant-level prediction
+* Dataset exploration
+* Model insights (feature importance + SHAP)
+
  
- Increasing impact_score  correctly pulls the prediction towards pathogenic (Red dots right of the center).
 
- It effectively captures the cooperative impact of low global frequencies (global_af) and high gene intolerances.
-
-
-Repository Structure
+## Repository Structure
 
 
- data/
- 
- SaudiVariantAIMasterDataset.csv # Pre-processed Master Feature Matrix
- models/
- 
- pathogenicity_model.json # Serialized XGBoost Classifier
- 
- images/
- 
- shapsummarybar.png # Global importance ranking
- 
- shap_beeswarm.png # Feature-level logic distribution
- 
- SaudiGenomicClassifier.ipynb # Full Computational Pipeline
+data/
+ └── Saudi_Variant_AI_Master_Dataset.csv
 
+models/
+ └── pathogenicity_model.json
 
- Usage & Deployment
+images/
+ ├── shap_summary_bar.png
+ └── shap_beeswarm.png
 
- The serialized model is provided in JSON format to ensure broadest compatibility with clinical workstations.
+Saudi_Genomic_Classifier.ipynb   # Full pipeline
+app.py                           # Streamlit interface
+requirements.txt
+```
 
+---
 
+## Usage
 
-Python
-
+```python
 import xgboost as xgb
 
 model = xgb.XGBClassifier()
+model.load_model("models/pathogenicity_model.json")
 
-model.loadmodel("models/pathogenicitymodel.json")
+# Feature order:
+# [pos, global_af, impact, pli, loeuf]
+```
 
-Input: [pos, globalaf, impactscore, gnomadpli, gnomadloeuf]
+---
 
+ 
+This is a **research prototype,** not a clinical diagnostic tool.
 
-This project is a proof-of-concept to enable precision medicine within the Kingdom. By ranking variants by their population specificity and through explainable AI, the  time of diagnoses can be shortened for the Saudi Arabian population, contributing to the overall aims of the Saudi Genome Program.
+---
+
+## Future Work
+
+* Expand to genome-wide prediction.
+* Add more features (CADD, REVEL, conservation scores).
+* Validate with independent datasets.
+* Enhance population-specific calibration.
+
+---
+
+## Conclusion
+
+This project shows the feasibility of combining **population-specific genomic data** with **interpretable machine learning** for pathogenicity prediction.
+
+It establishes a basis for reducing **representation bias** in genomic diagnostics and supports broader aims of **precision medicine initiatives**.
+
+---
+
+## Author
+
+**Sayeda Rehmat**  
+Bioinformatics Research Project
+
+---
+
+## Note
+
+The complete data processing, feature engineering, and model training pipeline is documented in the accompanying Jupyter Notebook:
+
+`Saudi_Genomic_Classifier.ipynb`
