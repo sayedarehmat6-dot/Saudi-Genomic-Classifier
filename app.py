@@ -10,24 +10,13 @@ import plotly.graph_objects as go
 # CONFIG
 # -----------------------------
 st.set_page_config(
-    page_title="Saudi Genomic Classifier",
+    page_title="Saudi Genomic Classifier (Chr21 Pilot)",
     page_icon="🧬",
     layout="wide"
 )
 
 FEATURES = ["pos", "global_af", "impact", "pli", "loeuf"]
 
-# -----------------------------
-# DEBUG (REMOVE LATER IF YOU WANT)
-# -----------------------------
-st.sidebar.write("📁 Working Dir:", os.getcwd())
-st.sidebar.write("📂 Root Files:", os.listdir())
-
-if os.path.exists("data"):
-    st.sidebar.write("📂 Data:", os.listdir("data"))
-
-if os.path.exists("models"):
-    st.sidebar.write("📂 Models:", os.listdir("models"))
 
 # -----------------------------
 # LOAD MODEL
@@ -84,7 +73,12 @@ Population-Aware Variant Pathogenicity Prediction (Saudi Focus)
 - Gene Constraint (pLI, LOEUF)
 - Functional Impact
     """)
+st.markdown("""
+**Scope:**  
+Chromosome 21 (Pilot Study)
 
+This model is trained only on Chr21 variants and is not genome-wide.
+""")
     st.divider()
 
     st.markdown("""
@@ -95,8 +89,7 @@ Rare variants in constrained genes are more likely pathogenic.
     st.divider()
 
     st.markdown("""
-⚠️ **Limitations**
-- Limited features  
+ 
 - No clinical validation  
 - Research prototype only  
     """)
@@ -104,7 +97,7 @@ Rare variants in constrained genes are more likely pathogenic.
 # -----------------------------
 # MAIN TITLE
 # -----------------------------
-st.title("🧬 Saudi Genomic Classifier")
+st.title("🧬 Saudi Genomic Classifier (Chr21 Pilot)")
 st.markdown("---")
 
 # -----------------------------
@@ -197,6 +190,7 @@ with tab1:
 # =========================================================
 # 📊 DATASET EXPLORER
 # =========================================================
+st.info("Dataset contains variants from Chromosome 21 only.")
 with tab2:
 
     if df is None:
@@ -234,6 +228,12 @@ with tab3:
 - Features: 5  
 - Task: Binary Classification  
     """)
+    st.subheader("Scope of Model")
+
+st.write("""
+This model was trained exclusively on Chromosome 21 variants as a pilot study. 
+It is designed to demonstrate population-aware pathogenicity prediction and is not intended for genome-wide inference.
+""")
 
     if model is not None:
         st.subheader("Feature Importance")
@@ -283,7 +283,7 @@ These reflect evolutionary pressure and help distinguish pathogenic variants.
 st.markdown("---")
 st.markdown(
     "<div style='text-align:center;color:gray;'>"
-    "Saudi Genomic Classifier | Sayeda Rehmat | Research Prototype"
+    "Saudi Genomic Classifier (Chr21 Pilot)| Sayeda Rehmat | Research Prototype"
     "</div>",
     unsafe_allow_html=True
 )
