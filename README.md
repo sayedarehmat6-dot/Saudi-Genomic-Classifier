@@ -85,7 +85,7 @@ This design:
 * validates the integration of Saudi plus global data
 * offers a foundation for future genome-wide scaling
 
- This model is **not genome-wide**.
+⚠️ This model is **not genome-wide**.
 
 ---
 
@@ -106,19 +106,24 @@ To ensure clarity, **SHAP (SHapley Additive Explanations)** was used.
 ---
 
 ## Streamlit Application
-https://saudi-genomic-classifier-eprkvza6vp5jnom9zenzzb.streamlit.app/
 
-An interactive dashboard is included  with:
+An interactive dashboard is included (`app.py`) with:
 
 * Variant-level prediction
 * Dataset exploration
 * Model insights (feature importance + SHAP)
 
- 
+Run it locally:
+
+```bash
+streamlit run app.py
+```
+
+---
 
 ## Repository Structure
 
-
+```bash
 data/
  └── Saudi_Variant_AI_Master_Dataset.csv
 
@@ -132,27 +137,63 @@ images/
 Saudi_Genomic_Classifier.ipynb   # Full pipeline
 app.py                           # Streamlit interface
 requirements.txt
-This is a research prototype, not a clinical diagnostic tool.
+```
 
- Future Work
-Extend to genome-wide prediction
-Incorporate additional features (CADD, REVEL, conservation scores)
-Validate on independent datasets
-Improve population-specific calibration
+---
 
- Conclusion
+## Usage
 
-This project demonstrates the feasibility of combining population-specific genomic data with interpretable machine learning for pathogenicity prediction.
+```python
+import xgboost as xgb
 
-It provides a foundation for reducing representation bias in genomic diagnostics and supports the broader goals of precision medicine initiatives.
+model = xgb.XGBClassifier()
+model.load_model("models/pathogenicity_model.json")
 
- Author
+# Feature order:
+# [pos, global_af, impact, pli, loeuf]
+```
 
-Sayeda Rehmat
+---
+
+## Limitations
+
+* Limited dataset size (~3,000 variants).
+* ClinVar labels may have conflicting interpretations.
+* Not fully representative of the Saudi population.
+* Limited feature set (no protein-level predictors).
+* No external validation dataset.
+* Restricted to Chromosome 21.
+
+This is a **research prototype,** not a clinical diagnostic tool.
+
+---
+
+## Future Work
+
+* Expand to genome-wide prediction.
+* Add more features (CADD, REVEL, conservation scores).
+* Validate with independent datasets.
+* Enhance population-specific calibration.
+
+---
+
+## Conclusion
+
+This project shows the feasibility of combining **population-specific genomic data** with **interpretable machine learning** for pathogenicity prediction.
+
+It establishes a basis for reducing **representation bias** in genomic diagnostics and supports broader aims of **precision medicine initiatives**.
+
+---
+
+## Author
+
+**Sayeda Rehmat**  
 Bioinformatics Research Project
 
- Note
+---
 
-The full data processing, feature engineering, and model training pipeline is implemented in the accompanying Jupyter Notebook:
+## Note
 
-Saudi_Genomic_Classifier.ipynb
+The complete data processing, feature engineering, and model training pipeline is documented in the accompanying Jupyter Notebook:
+
+`Saudi_Genomic_Classifier.ipynb`
