@@ -212,7 +212,8 @@ with tab2:
 
     if df is not None:
         st.subheader("Dataset Preview")
-        st.dataframe(df.head(100))
+        df_chr21 = df[df['chrom'].astype(str) == '21']
+        st.dataframe(df_chr21)
 
         if label_col:
             st.subheader("Class Distribution")
