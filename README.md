@@ -85,7 +85,7 @@ This design:
 * validates the integration of Saudi plus global data
 * offers a foundation for future genome-wide scaling
 
-⚠️ This model is **not genome-wide**.
+ This model is **not genome-wide**.
 
 ---
 
@@ -106,6 +106,8 @@ To ensure clarity, **SHAP (SHapley Additive Explanations)** was used.
 ---
 
 ## Streamlit Application
+
+https://saudi-genomic-classifier-eprkvza6vp5jnom9zenzzb.streamlit.app/
 
 An interactive dashboard is included (`app.py`) with:
 
@@ -155,14 +157,7 @@ model.load_model("models/pathogenicity_model.json")
 
 ---
 
-## Limitations
-
-* Limited dataset size (~3,000 variants).
-* ClinVar labels may have conflicting interpretations.
-* Not fully representative of the Saudi population.
-* Limited feature set (no protein-level predictors).
-* No external validation dataset.
-* Restricted to Chromosome 21.
+##  
 
 This is a **research prototype,** not a clinical diagnostic tool.
 
