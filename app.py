@@ -79,11 +79,14 @@ if df is not None:
 # SIDEBAR
 # -----------------------------
 with st.sidebar:
-    st.title("🧬 SGC v1.0")
+    st.title(" SGC v1.0")
 
     st.markdown("""
 **Population-Aware Variant Predictor**
-
+st.markdown("""
+**Data Sources:**  
+gnomAD • ClinVar • Saudi PAVS (integrated)
+""")
 **Scope:** Chr21 Pilot *(not genome-wide)*
 
 **Model:** XGBoost (~200 trees)
@@ -110,7 +113,7 @@ are more likely pathogenic.
 # -----------------------------
 # HEADER
 # -----------------------------
-st.title("🧬 Saudi Genomic Classifier (Chr21 Pilot)")
+st.title(" Saudi Genomic Classifier (Chr21 Pilot)")
 st.markdown("AI-driven pathogenicity prediction for Chromosome 21 variants")
 st.markdown("---")
 
@@ -118,9 +121,9 @@ st.markdown("---")
 # TABS
 # -----------------------------
 tab1, tab2, tab3 = st.tabs([
-    "🔬 Variant Analysis",
-    "📊 Dataset Explorer",
-    "🧠 Model Insights"
+    "Variant Analysis",
+    "Dataset Explorer",
+    "Model Insights"
 ])
 
 # =====================================================
