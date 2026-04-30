@@ -7,46 +7,67 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 # -----------------------------
-# CONFIG
+# PAGE CONFIG
 # -----------------------------
 st.set_page_config(
-    page_title="Saudi Genomic Classifier (Chr21 Pilot)",
+    page_title="Saudi Genomic Classifier (Chr21)",
     page_icon="🧬",
     layout="wide"
 )
 
-FEATURES = ["pos", "global_af", "impact", "pli", "loeuf"]
+# -----------------------------
+# CUSTOM STYLING (PROFESSIONAL LOOK)
+# -----------------------------
+st.markdown("""
+<style>
+.main {
+    background-color: #0e1117;
+    color: #fafafa;
+}
+h1, h2, h3 {
+    color: #00d4ff;
+}
+.stButton>button {
+    background-color: #00d4ff;
+    color: black;
+    border-radius: 8px;
+    height: 3em;
+    width: 100%;
+}
+</style>
+""", unsafe_allow_html=True)
 
+FEATURES = ["pos", "global_af", "impact", "pli", "loeuf"]
 
 # -----------------------------
 # LOAD MODEL
 # -----------------------------
 @st.cache_resource
 def load_model():
-    model_path = os.path.join("models", "pathogenicity_model.json")
-    if not os.path.exists(model_path):
-        st.error(f"Model not found at: {model_path}")
+    path = os.path.join("models", "pathogenicity_model.json")
+    if not os.path.exists(path):
+        st.error("Model file missing (models/pathogenicity_model.json)")
         return None
     model = xgb.XGBClassifier()
-    model.load_model(model_path)
+    model.load_model(path)
     return model
 
 model = load_model()
 
 # -----------------------------
-# LOAD DATASET
+# LOAD DATA
 # -----------------------------
 @st.cache_data
 def load_data():
-    data_path = os.path.join("data", "Saudi_Variant_AI_Master_Dataset.csv")
-    if not os.path.exists(data_path):
-        st.error(f"Dataset not found at: {data_path}")
+    path = os.path.join("data", "Saudi_Variant_AI_Master_Dataset.csv")
+    if not os.path.exists(path):
+        st.error("Dataset missing (data/Saudi_Variant_AI_Master_Dataset.csv)")
         return None
-    return pd.read_csv(data_path)
+    return pd.read_csv(path)
 
 df = load_data()
 
-# Auto-detect label column
+# Detect label column
 label_col = None
 if df is not None:
     for col in df.columns:
@@ -61,43 +82,36 @@ with st.sidebar:
     st.title("🧬 SGC v1.0")
 
     st.markdown("""
-**Developer:** Sayeda Rehmat  
+**Population-Aware Variant Predictor**
 
-**Project:**  
-Population-Aware Variant Pathogenicity Prediction (Saudi Focus)
+**Scope:** Chr21 Pilot *(not genome-wide)*
 
-**Model:** XGBoost (~200 Trees)
+**Model:** XGBoost (~200 trees)
 
-**Core Features:**
-- Allele Frequency
-- Gene Constraint (pLI, LOEUF)
-- Functional Impact
+**Features:**
+- Allele Frequency  
+- Functional Impact  
+- pLI (constraint)  
+- LOEUF (constraint)
     """)
-st.markdown("""
-**Scope:**  
-Chromosome 21 (Pilot Study)
 
-This model is trained only on Chr21 variants and is not genome-wide.
-""")
     st.divider()
 
     st.markdown("""
 **Hypothesis:**  
-Rare variants in constrained genes are more likely pathogenic.
+Rare variants in highly constrained genes  
+are more likely pathogenic.
     """)
 
     st.divider()
 
-    st.markdown("""
- 
-- No clinical validation  
-- Research prototype only  
-    """)
+    st.caption("Research Prototype • Not for clinical use")
 
 # -----------------------------
-# MAIN TITLE
+# HEADER
 # -----------------------------
 st.title("🧬 Saudi Genomic Classifier (Chr21 Pilot)")
+st.markdown("AI-driven pathogenicity prediction for Chromosome 21 variants")
 st.markdown("---")
 
 # -----------------------------
@@ -109,9 +123,9 @@ tab1, tab2, tab3 = st.tabs([
     "🧠 Model Insights"
 ])
 
-# =========================================================
+# =====================================================
 # 🔬 VARIANT ANALYSIS
-# =========================================================
+# =====================================================
 with tab1:
 
     st.subheader("Variant Input")
@@ -127,8 +141,8 @@ with tab1:
             "Global AF",
             min_value=0.0,
             max_value=1.0,
-            format="%.6f",
-            value=0.0001
+            value=0.0001,
+            format="%.6f"
         )
         pli = st.slider("pLI", 0.0, 1.0, 0.5)
 
@@ -138,7 +152,7 @@ with tab1:
     impact_map = {'HIGH': 3, 'MODERATE': 2, 'LOW': 1, 'MODIFIER': 0}
     impact_val = impact_map[impact]
 
-    if st.button("Run Analysis", use_container_width=True):
+    if st.button("Run Analysis"):
 
         if model is None:
             st.error("Model not loaded.")
@@ -154,9 +168,9 @@ with tab1:
             pred = model.predict(input_df)[0]
             prob = model.predict_proba(input_df)[0]
 
-            colA, colB = st.columns([1, 2])
+            c1, c2 = st.columns([1,2])
 
-            with colA:
+            with c1:
                 if pred == 1:
                     st.error("### PATHOGENIC")
                     st.metric("Confidence", f"{prob[1]*100:.2f}%")
@@ -164,38 +178,37 @@ with tab1:
                     st.success("### BENIGN / VUS")
                     st.metric("Confidence", f"{prob[0]*100:.2f}%")
 
-                st.subheader("Interpretation")
+                st.subheader("Biological Interpretation")
 
                 if global_af < 0.001:
-                    st.write("• Rare variant → higher pathogenic likelihood")
+                    st.write("• Rare variant → supports pathogenicity")
 
                 if pli > 0.9:
                     st.write("• High gene constraint (pLI)")
 
                 if loeuf < 0.5:
-                    st.write("• Low LOEUF → strong intolerance")
+                    st.write("• Strong intolerance (low LOEUF)")
 
-            with colB:
+            with c2:
                 fig = go.Figure(go.Bar(
                     x=[prob[0], prob[1]],
-                    y=['Benign', 'Pathogenic'],
+                    y=["Benign", "Pathogenic"],
                     orientation='h'
                 ))
                 fig.update_layout(title="Prediction Confidence")
                 st.plotly_chart(fig, use_container_width=True)
 
-            st.subheader("Feature Input Used")
+            st.subheader("Input Features")
             st.dataframe(input_df)
 
-# =========================================================
+# =====================================================
 # 📊 DATASET EXPLORER
-# =========================================================
-st.info("Dataset contains variants from Chromosome 21 only.")
+# =====================================================
 with tab2:
 
-    if df is None:
-        st.warning("Dataset not loaded.")
-    else:
+    st.info("Dataset contains Chromosome 21 variants only.")
+
+    if df is not None:
         st.subheader("Dataset Preview")
         st.dataframe(df.head(100))
 
@@ -203,58 +216,49 @@ with tab2:
             st.subheader("Class Distribution")
             st.bar_chart(df[label_col].value_counts())
 
-        if all(col in df.columns for col in ["global_af", "pli"]):
-            st.subheader("Feature Relationship")
+        if all(c in df.columns for c in ["global_af", "pli"]):
+            st.subheader("AF vs Constraint")
 
             fig = px.scatter(
                 df.sample(min(1000, len(df))),
                 x="global_af",
                 y="pli",
-                color=label_col if label_col else None,
-                title="Allele Frequency vs Gene Constraint"
+                color=label_col if label_col else None
             )
             st.plotly_chart(fig, use_container_width=True)
 
-# =========================================================
+# =====================================================
 # 🧠 MODEL INSIGHTS
-# =========================================================
+# =====================================================
 with tab3:
 
     st.subheader("Model Overview")
 
     st.write("""
-- Algorithm: XGBoost Classifier  
-- Trees: ~200  
-- Features: 5  
-- Task: Binary Classification  
+- XGBoost classifier  
+- ~200 trees  
+- Binary classification  
+- Chr21-specific training dataset  
     """)
-    st.subheader("Scope of Model")
-
-st.write("""
-This model was trained exclusively on Chromosome 21 variants as a pilot study. 
-It is designed to demonstrate population-aware pathogenicity prediction and is not intended for genome-wide inference.
-""")
 
     if model is not None:
         st.subheader("Feature Importance")
 
         booster = model.get_booster()
-        importance = booster.get_score(importance_type='weight')
+        imp = booster.get_score(importance_type='weight')
 
-        if importance:
+        if imp:
             imp_df = pd.DataFrame({
-                "Feature": list(importance.keys()),
-                "Importance": list(importance.values())
+                "Feature": list(imp.keys()),
+                "Importance": list(imp.values())
             }).sort_values(by="Importance", ascending=True)
 
             fig = px.bar(
                 imp_df,
                 x="Importance",
                 y="Feature",
-                orientation='h',
-                title="Model Feature Importance"
+                orientation='h'
             )
-
             st.plotly_chart(fig, use_container_width=True)
 
     st.subheader("SHAP Interpretability")
@@ -265,16 +269,13 @@ It is designed to demonstrate population-aware pathogenicity prediction and is n
     if os.path.exists("images/shap_beeswarm.png"):
         st.image("images/shap_beeswarm.png")
 
-    st.subheader("Training Insight")
+    st.subheader("Scope & Limitation")
 
     st.write("""
-The model uses biologically meaningful features:
+This model is trained only on Chromosome 21 variants  
+and serves as a pilot for population-aware prediction.
 
-- Allele frequency → rarity signal  
-- pLI → gene intolerance  
-- LOEUF → functional constraint  
-
-These reflect evolutionary pressure and help distinguish pathogenic variants.
+Not intended for genome-wide or clinical use.
     """)
 
 # -----------------------------
@@ -283,7 +284,7 @@ These reflect evolutionary pressure and help distinguish pathogenic variants.
 st.markdown("---")
 st.markdown(
     "<div style='text-align:center;color:gray;'>"
-    "Saudi Genomic Classifier (Chr21 Pilot)| Sayeda Rehmat | Research Prototype"
+    "Saudi Genomic Classifier (Chr21 Pilot) | Sayeda Rehmat"
     "</div>",
     unsafe_allow_html=True
 )
